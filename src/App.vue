@@ -9,8 +9,6 @@
     <div v-if="videoInfo">
       <label for="title">Title</label>
       <input v-model="title" name="title" type="text"/>
-      <label for="album">Album</label>
-      <input v-model="album" name="album" type="text"/>
       <button @click="convert">Convert</button>
     </div>
     <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
@@ -22,7 +20,6 @@ import { shell, remote, dialog } from 'electron'
 import os from 'os'
 import fs from 'fs'
 import ytdl from 'ytdl-core'
-import getArtistTitle from 'get-artist-title'
 import HelloWorld from './components/HelloWorld.vue'
 
 export default {
@@ -38,7 +35,6 @@ export default {
       infoLoading: false,
       loading: 0,
       title: '',
-      album: '',
     }
   },
   watch: {
@@ -53,9 +49,7 @@ export default {
         // .thumbnail_url, .title
         this.loading = 0
         this.videoInfo = info
-        const artistTitle = getArtistTitle(info.title)
-        this.title = artistTitle[0]
-        this.album = artistTitle[1]
+        this.title = info.title
       }, (error) => {
         this.videoInfo = null
       })
