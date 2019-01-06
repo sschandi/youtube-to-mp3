@@ -4,8 +4,15 @@
     <p>{{ savePath }}</p>
     <button @click="setSaveDirectory">Choose Directory</button>
     <input v-model="youtubeURL" type="text"/>
-    <button @click="convert">Convert</button>
+    <p>infoLoading: {{ infoLoading }}</p>
     <p>{{ loading }}</p>
+    <div v-if="videoInfo">
+      <label for="title">Title</label>
+      <input v-model="title" name="title" type="text"/>
+      <label for="album">Album</label>
+      <input v-model="album" name="album" type="text"/>
+      <button @click="convert">Convert</button>
+    </div>
     <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   </div>
 </template>
@@ -15,6 +22,7 @@ import { shell, remote, dialog } from 'electron'
 import os from 'os'
 import fs from 'fs'
 import ytdl from 'ytdl-core'
+import getArtistTitle from 'get-artist-title'
 import HelloWorld from './components/HelloWorld.vue'
 
 export default {
@@ -27,20 +35,31 @@ export default {
       youtubeURL: '',
       savePath: localStorage.getItem('saveDirectory') ? localStorage.getItem('saveDirectory') : os.homedir(),
       videoInfo: null,
+      infoLoading: false,
       loading: 0,
+      title: '',
+      album: '',
     }
   },
   watch: {
     youtubeURL() {
       if (this.youtubeURL.length === 0) {
+        this.videoInfo = null
         return
       }
-      ytdl.getInfo(this.youtubeURL).then((info) => {
+      this.infoLoading = true
+      ytdl.getInfo(this.youtubeURL)
+      .then((info) => {
         // .thumbnail_url, .title
         this.loading = 0
         this.videoInfo = info
-        console.log(this.videoInfo.title)
-      }, (error) => console.log(error))
+        const artistTitle = getArtistTitle(info.title)
+        this.title = artistTitle[0]
+        this.album = artistTitle[1]
+      }, (error) => {
+        this.videoInfo = null
+      })
+      .finally(() => this.infoLoading = false)
     }
   },
   methods: {
@@ -65,7 +84,7 @@ export default {
         this.loading = downloaded / total
       })
 
-      file.pipe(fs.createWriteStream(`${this.savePath}/${this.videoInfo.title}.mp3`)).on('finish', () => {
+      file.pipe(fs.createWriteStream(`${this.savePath}/${this.title}.mp3`)).on('finish', () => {
         this.loading = 100
         console.log('we r done')
       })
