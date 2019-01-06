@@ -5,7 +5,8 @@
     <button @click="setSaveDirectory">Choose Directory</button>
     <input v-model="youtubeURL" type="text"/>
     <button @click="convert">Convert</button>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <p>{{ loading }}</p>
+    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   </div>
 </template>
 
@@ -25,6 +26,21 @@ export default {
     return {
       youtubeURL: '',
       savePath: localStorage.getItem('saveDirectory') ? localStorage.getItem('saveDirectory') : os.homedir(),
+      videoInfo: null,
+      loading: 0,
+    }
+  },
+  watch: {
+    youtubeURL() {
+      if (this.youtubeURL.length === 0) {
+        return
+      }
+      ytdl.getInfo(this.youtubeURL).then((info) => {
+        // .thumbnail_url, .title
+        this.loading = 0
+        this.videoInfo = info
+        console.log(this.videoInfo.title)
+      }, (error) => console.log(error))
     }
   },
   methods: {
@@ -43,7 +59,16 @@ export default {
       console.log('convert', this.youtubeURL)
       // import * as path from 'path'
       // const outputPath = path.join(this.savePath, `tmp.mp3`);
-      ytdl(this.youtubeURL, {filter: 'audioonly'}).pipe(fs.createWriteStream(`${this.savePath}/test.mp3`));
+      const file = ytdl(this.youtubeURL, {filter: 'audioonly'})
+
+      file.on('progress', (chunk, downloaded, total) => {
+        this.loading = downloaded / total
+      })
+
+      file.pipe(fs.createWriteStream(`${this.savePath}/${this.videoInfo.title}.mp3`)).on('finish', () => {
+        this.loading = 100
+        console.log('we r done')
+      })
     }
   }
 }
