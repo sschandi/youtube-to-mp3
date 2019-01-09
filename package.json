@@ -15,6 +15,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "get-artist-title": "^1.1.1",
     "vue": "^2.5.21",
+    "vue-loaders": "^2.0.0",
     "ytdl-core": "^0.28.3"
   },
   "devDependencies": {

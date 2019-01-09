@@ -12,11 +12,16 @@
 				</div>
 			</div>
 			<div v-if="infoLoading">
-				<p>Getting info...</p>
+				<BallBeatLoader/>
 			</div>
 			<button class="btn" @click="openSaveDirectory">Open Directory</button>
 			<div v-if="videoInfo">
-				<p>{{ status }}: {{ loading }}</p>
+				<div class="loader-container">
+					<BallScaleRippleMultipleLoader class="loader-el" size="200px"/>
+					<h1>
+							{{ loading | roundNumber }}%</h1>
+				</div>
+				<p>{{ status }}: {{ loading | roundNumber }}</p>
 				<div class="input-container">
 					<div class="input">
 						<p>Title</p>
@@ -68,6 +73,11 @@ export default {
 			artist: '',
 			showSettings: false,
 		}
+	},
+	filters: {
+		roundNumber(number) {
+			return Math.round(number)
+		},
 	},
 	watch: {
 		youtubeURL() {
@@ -186,6 +196,25 @@ html, body {
 	position: relative;
 	flex-grow: 1;
 	padding-bottom: 1rem;
+	.loader-container {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		.loader-el {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		h1 {
+			margin: 0;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-size: 60px;
+		}
+	}
 }
 #settings {
 	background-color: $red;
