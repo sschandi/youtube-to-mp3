@@ -1,18 +1,32 @@
 <template>
   <div id="app">
-    <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
-    <p>{{ savePath }}</p>
-    <button @click="setSaveDirectory">Choose Directory</button>
-    <input v-model="youtubeURL" type="text">
-    <p>infoLoading: {{ infoLoading }}</p>
-    <div v-if="videoInfo">
-      <p>{{ status }}: {{ loading }}</p>
-      <label for="title">Title</label>
-      <input v-model="title" name="title" type="text">
-      <label for="artist">Artist</label>
-      <input v-model="artist" name="artist" type="text">
-      <button @click="convert">Convert</button>
-    </div>
+		<!-- <img alt="Vue logo" src="./assets/logo.png"> -->
+		<button class="btn" @click="setSaveDirectory">Choose Directory</button>
+		<button class="btn" @click="openSaveDirectory">Open Directory</button>
+		<p>{{ savePath }}</p>
+		<div class="input-container">
+			<div class="input">
+				<p>URL</p>
+				<input v-model="youtubeURL" for="url" type="text">
+			</div>
+		</div>
+		<p>infoLoading: {{ infoLoading }}</p>
+		<div v-if="videoInfo">
+			<p>{{ status }}: {{ loading }}</p>
+			<div class="input-container">
+				<div class="input">
+					<p>Title</p>
+					<input v-model="title" name="title" type="text">
+				</div>
+			</div>
+			<div class="input-container">
+				<div class="input">
+					<p>Artist</p>
+					<input v-model="artist" name="artist" type="text">
+				</div>
+			</div>
+			<button class="btn" @click="convert">Convert</button>
+		</div>
   </div>
 </template>
 
@@ -86,7 +100,10 @@ export default {
 				this.savePath = directory[0]
 				localStorage.setItem('saveDirectory', directory[0])
 			}
+		},
+		openSaveDirectory() {
 			// shell.showItemInFolder(remote.app.getPath('downloads'))
+			shell.openItem(this.savePath)
 		},
 		convert() {
 			this.loading = 0
@@ -130,11 +147,61 @@ export default {
 </script>
 
 <style lang="scss">
+$white: #ffffff;
+$red: #FE2B53;
+html, body {
+	margin: 0;
+}
 #app {
 	font-family: 'Avenir', Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	height: 100vh;
+	width: 100vw;
 	text-align: center;
-	color: #2c3e50;
+	color: $white;
+	background-image: linear-gradient(45deg, #312D44 0%, #7F69A1 99%, #8F75B1 100%);
+}
+.btn {
+	padding: .5rem;
+	border: none;
+	margin: .5rem .25rem;
+	background-color: $red;
+	color: $white;
+	border-radius: .25rem;
+	cursor: pointer;
+}
+.input-container {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+	.input {
+		width: 50%;
+		display: flex;
+		flex-direction: column;
+		// align-items: center;
+		// justify-content: center;
+		p {
+			width: 100%;
+			margin: 0;
+			text-align: left;
+			font-size: 14px;
+			margin-bottom: .25rem;
+		}
+		input {
+			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+			box-sizing: border-box;         /* Opera/IE 8+ */
+			width: 100%;
+			border: none;
+			padding: .5rem .25rem;
+			color: $white;
+			background-color: rgba(255,255,255,.3);
+			margin-bottom: 1rem;
+			&:focus {
+				outline: none;
+			}
+		}
+	}
 }
 </style>
