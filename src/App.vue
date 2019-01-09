@@ -5,36 +5,43 @@
 		</div>
 		<!-- <img alt="Vue logo" src="./assets/logo.png"> -->
 		<div id="content">
-			<div class="input-container">
-				<div class="input">
-					<p>URL</p>
-					<input v-model="youtubeURL" for="url" type="text">
+			<div v-show="!converting">
+				<div class="input-container">
+					<div class="input">
+						<p>URL</p>
+						<input v-model="youtubeURL" for="url" type="text">
+					</div>
+				</div>
+				<div v-if="infoLoading">
+					<BallBeatLoader/>
+				</div>
+				<!-- <button class="btn" @click="openSaveDirectory">Open Directory</button> -->
+				<div v-if="videoInfo">
+					<h3>Info:</h3>
+					<div class="input-container">
+						<div class="input">
+							<p>Title</p>
+							<input v-model="title" name="title" type="text">
+						</div>
+					</div>
+					<div class="input-container">
+						<div class="input">
+							<p>Artist</p>
+							<input v-model="artist" name="artist" type="text">
+						</div>
+					</div>
+					<button class="btn" @click="convert">Convert</button>
 				</div>
 			</div>
-			<div v-if="infoLoading">
-				<BallBeatLoader/>
-			</div>
-			<button class="btn" @click="openSaveDirectory">Open Directory</button>
-			<div v-if="videoInfo">
+			<div v-show="converting">
+				<h1>{{ status }}</h1>
 				<div class="loader-container">
 					<BallScaleRippleMultipleLoader class="loader-el" size="200px"/>
-					<h1>
-							{{ loading | roundNumber }}%</h1>
-				</div>
-				<p>{{ status }}: {{ loading | roundNumber }}</p>
-				<div class="input-container">
-					<div class="input">
-						<p>Title</p>
-						<input v-model="title" name="title" type="text">
+					<div class="loader-text">
+						<h1>{{ loading | roundNumber }}%</h1>
+						<p>{{ status }}</p>
 					</div>
 				</div>
-				<div class="input-container">
-					<div class="input">
-						<p>Artist</p>
-						<input v-model="artist" name="artist" type="text">
-					</div>
-				</div>
-				<button class="btn" @click="convert">Convert</button>
 			</div>
 			<button class="btn btn-settings" @click="showSettings = !showSettings">
 				<i class="material-icons">settings</i>
@@ -43,6 +50,7 @@
 		<div id="settings" v-show="showSettings">
 			<p><span class="text-bold">Save Directory:</span> {{ savePath }}
 			<button class="btn" @click="setSaveDirectory">Change</button></p>
+			<button class="btn" @click="devTools">dev</button>
 		</div>
   </div>
 </template>
@@ -67,6 +75,7 @@ export default {
 				: os.homedir(),
 			videoInfo: null,
 			infoLoading: false,
+			converting: false,
 			loading: 0,
 			status: 'Downloading',
 			title: '',
@@ -110,7 +119,14 @@ export default {
 				.finally(() => (this.infoLoading = false))
 		}
 	},
+	created() {
+		console.log(binaries.ffmpegPath())
+		console.log(binaries)
+	},
 	methods: {
+		devTools() {
+			win.webContents.openDevTools()
+		},
 		setSaveDirectory() {
 			const directory = remote.dialog.showOpenDialog(
 				remote.getCurrentWindow(),
@@ -131,6 +147,7 @@ export default {
 		convert() {
 			this.loading = 0
 			this.status = 'Downloading'
+			this.converting = true
 			const file = ytdl(this.youtubeURL, { filter: 'audioonly' })
 
 			file.on('progress', (chunk, downloaded, total) => {
@@ -142,7 +159,6 @@ export default {
 				.on('finish', () => {
 					this.loading = 100
 					this.addID3Tags(`${this.savePath}/${this.title}_temp.mp3`)
-					console.log('we r done')
 				})
 		},
 		addID3Tags(mp3Path) {
@@ -161,6 +177,8 @@ export default {
 					fs.unlink(`${this.savePath}/${this.title}_temp.mp3`, () => {
 						this.loading = 100
 						this.status = 'Complete'
+						this.converting = false
+						this.youtubeURL = ''
 					})
 				})
 				.run()
@@ -177,6 +195,8 @@ $shadow: 0 10px 20px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 html, body {
 	margin: 0;
 	font-family: 'Comfortaa', cursive;
+	background-image: linear-gradient(45deg, #312D44 0%, #7F69A1 99%, #8F75B1 100%);
+	background-attachment: fixed;
 }
 #app {
 	-webkit-font-smoothing: antialiased;
@@ -185,7 +205,7 @@ html, body {
 	width: 100vw;
 	text-align: center;
 	color: $white;
-	background-image: linear-gradient(45deg, #312D44 0%, #7F69A1 99%, #8F75B1 100%);
+	overflow-x: hidden;
 	display: flex;
 	flex-direction: column;
 }
@@ -206,13 +226,20 @@ html, body {
 			align-items: center;
 			justify-content: center;
 		}
-		h1 {
+		.loader-text {
 			margin: 0;
 			position: absolute;
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
-			font-size: 60px;
+			// font-size: 60px;
+			h1 {
+				font-size: 40px;
+				margin: 0;
+			}
+			p {
+				margin: 0;
+			}
 		}
 	}
 }
@@ -235,6 +262,7 @@ html, body {
 	color: $white;
 	border-radius: .25rem;
 	box-shadow: $shadow;
+	transition: all 1s ease-out;
 	cursor: pointer;
 	&:focus {
 		outline: none;
