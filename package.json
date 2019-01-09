@@ -11,6 +11,10 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "ffmpeg": "0.0.4",
+    "ffmpeg-binaries": "3.2.2-3",
+    "ffmpeg-static-electron": "^2.0.1",
+    "fluent-ffmpeg": "^2.1.2",
     "vue": "^2.5.21",
     "ytdl-core": "^0.28.3"
   },
