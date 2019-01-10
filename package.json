@@ -1,5 +1,7 @@
 {
   "name": "youtube-to-mp3",
+  "description": "Convert YouTube Videos to MP3 Files",
+  "author": "SSChandi",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,8 +14,6 @@
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.17",
-    "ffmpeg": "0.0.4",
-    "ffmpeg-binaries": "3.2.2-3",
     "fluent-ffmpeg": "^2.1.2",
     "get-artist-title": "^1.1.1",
     "vue": "^2.5.21",

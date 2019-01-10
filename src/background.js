@@ -15,7 +15,7 @@ let win
 protocol.registerStandardSchemes(['app'], { secure: true })
 function createWindow() {
 	// Create the browser window.
-	win = new BrowserWindow({ width: 800, height: 600 })
+	win = new BrowserWindow({ width: 700, height: 500, resizable: false })
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
@@ -25,7 +25,6 @@ function createWindow() {
 		createProtocol('app')
 		// Load the index.html when not in development
 		win.loadURL('app://./index.html')
-		win.webContents.openDevTools()
 	}
 
 	win.on('closed', () => {
