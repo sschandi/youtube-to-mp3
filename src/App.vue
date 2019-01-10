@@ -50,7 +50,6 @@
 		<div id="settings" v-show="showSettings">
 			<p><span class="text-bold">Save Directory:</span> {{ savePath }}
 			<button class="btn" @click="setSaveDirectory">Change</button></p>
-			<button class="btn" @click="devTools">dev</button>
 		</div>
   </div>
 </template>
@@ -62,6 +61,9 @@ import fs from 'fs'
 import ytdl from 'ytdl-core'
 import getArtistTitle from 'get-artist-title'
 
+const ffmpegPath = window
+	.require('@ffmpeg-installer/ffmpeg')
+	.path.replace('app.asar', 'app.asar.unpacked')
 const ffmpeg = window.require('fluent-ffmpeg')
 const binaries = window.require('ffmpeg-binaries')
 
@@ -80,13 +82,16 @@ export default {
 			status: 'Downloading',
 			title: '',
 			artist: '',
-			showSettings: false,
+			showSettings: false
 		}
 	},
 	filters: {
 		roundNumber(number) {
+			if (isNaN(number)) {
+				return number
+			}
 			return Math.round(number)
-		},
+		}
 	},
 	watch: {
 		youtubeURL() {
@@ -120,13 +125,10 @@ export default {
 		}
 	},
 	created() {
-		console.log(binaries.ffmpegPath())
+		console.log(binaries.ffmpegPath(), ffmpegPath)
 		console.log(binaries)
 	},
 	methods: {
-		devTools() {
-			win.webContents.openDevTools()
-		},
 		setSaveDirectory() {
 			const directory = remote.dialog.showOpenDialog(
 				remote.getCurrentWindow(),
@@ -165,7 +167,7 @@ export default {
 			this.loading = 0
 			this.status = 'Processing'
 			ffmpeg(mp3Path)
-				.setFfmpegPath(binaries.ffmpegPath())
+				.setFfmpegPath(ffmpegPath)
 				.outputOptions('-metadata', `title=${this.title}`)
 				.outputOptions('-metadata', `artist=${this.artist}`)
 				.output(`${this.savePath}/${this.title}.mp3`)
@@ -189,13 +191,19 @@ export default {
 
 <style lang="scss">
 $white: #ffffff;
-$red: #FE2B53;
-$shadow: 0 10px 20px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+$red: #fe2b53;
+$shadow: 0 10px 20px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 
-html, body {
+html,
+body {
 	margin: 0;
 	font-family: 'Comfortaa', cursive;
-	background-image: linear-gradient(45deg, #312D44 0%, #7F69A1 99%, #8F75B1 100%);
+	background-image: linear-gradient(
+		45deg,
+		#312d44 0%,
+		#7f69a1 99%,
+		#8f75b1 100%
+	);
 	background-attachment: fixed;
 }
 #app {
@@ -255,12 +263,12 @@ html, body {
 	font-weight: bold;
 }
 .btn {
-	padding: .5rem;
+	padding: 0.5rem;
 	border: none;
-	margin: .5rem .25rem;
+	margin: 0.5rem 0.25rem;
 	background-color: $red;
 	color: $white;
-	border-radius: .25rem;
+	border-radius: 0.25rem;
 	box-shadow: $shadow;
 	transition: all 1s ease-out;
 	cursor: pointer;
@@ -283,25 +291,24 @@ html, body {
 	.input {
 		width: 50%;
 		display: flex;
-		flex-direction: column;
-		// align-items: center;
-		// justify-content: center;
+		flex-direction: column; // align-items: center; // justify-content: center;
 		p {
 			width: 100%;
 			margin: 0;
 			text-align: left;
 			font-size: 14px;
-			margin-bottom: .25rem;
+			margin-bottom: 0.25rem;
 		}
 		input {
 			-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-			-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-			box-sizing: border-box;         /* Opera/IE 8+ */
+			-moz-box-sizing: border-box; /* Firefox, other Gecko */
+			box-sizing: border-box;
+			/* Opera/IE 8+ */
 			width: 100%;
 			border: none;
-			padding: .5rem .25rem;
+			padding: 0.5rem 0.25rem;
 			color: $white;
-			background-color: rgba(255,255,255,.3);
+			background-color: rgba(255, 255, 255, 0.3);
 			margin-bottom: 1rem;
 			&:focus {
 				outline: none;
