@@ -11,7 +11,7 @@
         <div class="input-container">
           <div class="input">
             <p>URL</p>
-            <input v-model="youtubeURL" for="url" type="text">
+            <input v-model="youtubeURL" for="url" type="text" @mouseover="setYoutubeURLFromClipboard">
           </div>
         </div>
         <div v-if="infoLoading">
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { shell, remote, dialog } from 'electron'
+import { shell, remote, clipboard, dialog } from 'electron'
 import os from 'os'
 import fs from 'fs'
 import ytdl from 'ytdl-core'
@@ -128,6 +128,9 @@ export default {
 		openSaveDirectory() {
 			// shell.showItemInFolder(remote.app.getPath('downloads'))
 			shell.openItem(this.savePath)
+		},
+		setYoutubeURLFromClipboard() {
+			this.youtubeURL = clipboard.readText()
 		},
 		fetchAndSetInfo(youtubeURL) {
 			this.infoLoading = true
