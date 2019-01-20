@@ -18,19 +18,23 @@
           <BallBeatLoader/>
         </div>
         <div v-if="videoInfo">
-          <!-- <h3>Info:</h3> -->
-          <div class="input-container">
-            <div class="input">
-              <p>Title</p>
-              <input v-model="title" name="title" type="text">
-            </div>
-          </div>
-          <div class="input-container">
-            <div class="input">
-              <p>Artist</p>
-              <input v-model="artist" name="artist" type="text">
-            </div>
-          </div>
+					<div class="video-info">
+						<div class="input-container">
+							<div class="input">
+								<p>Title</p>
+								<input v-model="title" name="title" type="text">
+							</div>
+						</div>
+						<div class="input-container">
+							<div class="input">
+								<p>Artist</p>
+								<input v-model="artist" name="artist" type="text">
+							</div>
+						</div>
+						<button class="btn btn-icon" @click="swapTitleArtist()">
+							<i class="material-icons">swap_vert</i>
+						</button>
+					</div>
           <button class="btn" @click="convert">Convert</button>
         </div>
       </div>
@@ -43,7 +47,7 @@
           </div>
         </div>
       </div>
-      <button class="btn btn-settings" @click="showSettings = !showSettings">
+      <button class="btn btn-icon btn-settings" @click="showSettings = !showSettings">
         <i v-if="!showSettings" class="material-icons">settings</i>
         <i v-else class="material-icons">close</i>
       </button>
@@ -99,7 +103,7 @@ export default {
 	},
 	computed: {
 		filePath() {
-			return `${this.savePath}/${this.title}-${this.artist}`
+			return `${this.savePath}/${this.artist} - ${this.title}`
 		}
 	},
 	watch: {
@@ -112,6 +116,12 @@ export default {
 		}
 	},
 	methods: {
+		swapTitleArtist() {
+			const title = this.artist
+			const artist = this.title
+			this.title = title
+			this.artist = artist
+		},
 		setSaveDirectory() {
 			const directory = remote.dialog.showOpenDialog(
 				remote.getCurrentWindow(),
@@ -178,6 +188,7 @@ export default {
 			this.status = 'Processing'
 			ffmpeg(mp3Path)
 				.setFfmpegPath(ffmpegPath)
+				.audioBitrate(128)
 				.outputOptions('-metadata', `title=${this.title}`)
 				.outputOptions('-metadata', `artist=${this.artist}`)
 				.output(`${this.filePath}.mp3`)
@@ -258,6 +269,14 @@ body {
 	position: relative;
 	flex-grow: 1;
 	padding-bottom: 1rem;
+	.video-info {
+		position: relative;
+		.btn-icon {
+			position: absolute;
+			left: 100px;
+			top: calc(50% - 25px);
+		}
+	}
 	.loader-container {
 		position: relative;
 		display: flex;
@@ -314,13 +333,15 @@ body {
 	&:hover {
 		transform: translateY(-3px);
 	}
-	&.btn-settings {
+	&.btn-icon {
 		border-radius: 50%;
+		width: 40px;
+		height: 40px;
+	}
+	&.btn-settings {
 		position: absolute;
 		bottom: 1rem;
 		right: 1rem;
-		width: 40px;
-		height: 40px;
 	}
 }
 .input-container {
