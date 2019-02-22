@@ -5,7 +5,6 @@
       <i class="material-icons">swap_horiz</i>
       <h1>MP3</h1>
     </div>
-    <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
     <div id="content">
       <div v-show="!converting">
         <div class="input-container">
@@ -64,7 +63,7 @@
 </template>
 
 <script>
-import { shell, remote, clipboard, dialog } from 'electron'
+import { shell, remote, clipboard } from 'electron'
 import os from 'os'
 import fs from 'fs'
 import ytdl from 'ytdl-core'
@@ -153,8 +152,8 @@ export default {
 						this.videoInfo = info
 						const artistTitle = getArtistTitle(info.title)
 						if (artistTitle) {
-							this.title = artistTitle[0]
-							this.artist = artistTitle[1]
+							this.title = artistTitle[1]
+							this.artist = artistTitle[0]
 						} else {
 							this.title = info.title
 							this.artist = ''
